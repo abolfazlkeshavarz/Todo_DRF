@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from .models import Todo
-from .serializers import TodoSerializer
+from .models import Todo, user
+from .serializers import TodoSerializer, UserSerializer
 from rest_framework import generics, mixins
+from rest_framework import viewsets
 
 #region Function based Views
 @api_view(['GET', 'POST'])
@@ -98,7 +99,6 @@ class MixinViews(mixins.CreateModelMixin, mixins.ListModelMixin, generics.Generi
         return self.list(request=request)
     def post(self, request:Request):
         return self.create(request=request)
-#endregion
 
 class MixinDetailedView(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, generics.GenericAPIView):
     queryset = Todo.objects.all()
@@ -111,3 +111,29 @@ class MixinDetailedView(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mix
         return self.update(request, pk)
     def delete(self, request: Request, pk):
         return self.destroy(request, pk)
+
+#endregion
+
+#region generics
+class TodoGenericAPIViews(generics.ListCreateAPIView):
+    queryset = Todo.objects.order_by('priority').all()
+    serializer_class = TodoSerializer
+
+class TodoGenericDetailedAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Todo.objects.order_by('priority').all()
+    serializer_class = TodoSerializer
+#endregion
+
+#region viewsets
+class TodoViewsets(viewsets.ModelViewSet):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+#endregion
+
+#region Users
+class UsersGenericAPI(generics.ListAPIView):
+    
+    queryset = user.objects.all()
+    serializer_class = UserSerializer
+
+#endregion
